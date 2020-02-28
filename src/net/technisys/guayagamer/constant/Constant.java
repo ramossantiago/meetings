@@ -2,8 +2,20 @@ package net.technisys.guayagamer.constant;
 
 public class Constant {
 
+	
+	public static final int SESSION1_INITIAL_HOUR = 9;
+	public static final int SESSION1_FINAL_HOUR = 9;
+	
+	//public static final int SESSION1_INITIAL_HOUR = 9;
+	//public static final int SESSION1_FINAL_HOUR = 9;
+	
+	
 	public static final int INITIAL_HOUR = 9;
 	public static final int LUNCH_HOUR = 12;
+	
+	
+	
+	
 	public static final int MIN_FINAL_HOUR = 16;
 	public static final int MAX_FINAL_HOUR = 17;
 	
