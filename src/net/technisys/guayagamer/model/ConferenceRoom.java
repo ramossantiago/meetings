@@ -1,12 +1,17 @@
 package net.technisys.guayagamer.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConferenceRoom {
 
 	private String name;
-	private List<Session1> sessions;
+	private List<Session> sessions;
 
+	public ConferenceRoom() {
+		sessions = new ArrayList<>();
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -15,17 +20,20 @@ public class ConferenceRoom {
 		this.name = name;
 	}
 
-	public List<Session1> getSessions() {
+	public List<Session> getSessions() {
 		return sessions;
 	}
 
-	public void setSessions(List<Session1> sessions) {
+	public void setSessions(List<Session> sessions) {
 		this.sessions = sessions;
 	}
 
-	@Override
-	public String toString() {
-		return super.toString();
+	public void printConferenceRoom() {
+		System.out.println(name.toUpperCase()+":");
+		sessions.forEach(s -> s.printSession());
 	}
 
+	
+	
+	
 }

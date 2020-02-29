@@ -1,23 +1,31 @@
 package net.technisys.guayagamer.constant;
 
+import java.time.LocalTime;
+
 public class Constant {
 
+	private Constant(){
+	}
 	
-	public static final int SESSION1_INITIAL_HOUR = 9;
-	public static final int SESSION1_FINAL_HOUR = 9;
+	// morning session
+	public static final LocalTime START_TIME_MORNING_SESSION = LocalTime.of(9, 0);
+	public static final LocalTime END_TIME_MORNING_SESSION = LocalTime.of(12, 0);
 	
-	//public static final int SESSION1_INITIAL_HOUR = 9;
-	//public static final int SESSION1_FINAL_HOUR = 9;
+	// evening session
+	public static final LocalTime START_TIME_EVENING_SESSION = LocalTime.of(13, 0);
+	public static final LocalTime MIN_END_TIME_EVENING_SESSION = LocalTime.of(16, 0);
+	public static final LocalTime MAX_END_TIME_EVENING_SESSION = LocalTime.of(17, 0);
+
+	// lunch
+	public static final LocalTime START_LUNCH = LocalTime.of(13, 0);
+	public static final LocalTime END_LUNCH = LocalTime.of(14, 0);
 	
 	
-	public static final int INITIAL_HOUR = 9;
-	public static final int LUNCH_HOUR = 12;
+	public static final String CONFERENCE_ROOM = "SALA";
+	public static final String MORNING_SESSION = "SESION DIA";
+	public static final String EVENING_SESSION = "SESION TARDE";
 	
 	
-	
-	
-	public static final int MIN_FINAL_HOUR = 16;
-	public static final int MAX_FINAL_HOUR = 17;
 	
 	public static final int MIN_HOUR_PER_ROOM = 6;
 	public static final int MAX_HOUR_PER_ROOM = 7;
@@ -27,8 +35,5 @@ public class Constant {
 	
 	public static final int MIN_HOURS_SESSION2 = 3;
 	public static final int MAX_HOURS_SESSION2 = 4;
-	
-	
-	
 	
 }

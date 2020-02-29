@@ -44,4 +44,7 @@ public class Conference {
 		setEndTime();
 	}
 	
+	public void printConference(){
+		System.out.println(this.getStartTime() +" " + this.name + this.getDuration().toMinutes() + "min");
+	}
 }
