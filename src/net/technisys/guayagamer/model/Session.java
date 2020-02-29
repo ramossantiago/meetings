@@ -14,18 +14,27 @@ public class Session implements ISession {
 	private LocalTime minimumEndTimeSession;
 	private LocalTime maximumEndTimeSession;
 	private List<Conference> conferences;
+	
+	private Duration minDuration;
+	private Duration maxDuration;
+	
+	private Duration remainingMinutes;
 
-	public Session() {
-		conferences = new ArrayList<>();
-	}
+//	public Session() {
+//		conferences = new ArrayList<>();
+//		this.remainingMinutes = Duration.ZERO;
+//	}
 
-	public Session(String name, LocalTime startSession, LocalTime minimumEndTimeSession, LocalTime maximumEndTimeSession) {
+	public Session(String name, LocalTime startSession, LocalTime minimumEndTimeSession,
+			LocalTime maximumEndTimeSession) {
 		super();
+		// TODO validate input and throw exception
 		this.name = name;
 		this.startSession = startSession;
 		this.minimumEndTimeSession = minimumEndTimeSession;
 		this.maximumEndTimeSession = maximumEndTimeSession;
 		conferences = new ArrayList<>();
+		calculateRemainingTime();
 	}
 
 	public String getName() {
@@ -68,44 +77,70 @@ public class Session implements ISession {
 		this.conferences = conferences;
 	}
 
+	public long getRemainingMinutes() {
+		return remainingMinutes.toMinutes();
+	}
+
+	private void setRemainingMinutes(Duration remainingMinutes) {
+		this.remainingMinutes = remainingMinutes;
+	}
+
 	@Override
-	public boolean isSessionFull() {
+	public boolean isFull() {
+		Long maxDuration = Duration.between(startSession, maximumEndTimeSession).toMinutes();
+		Long minDuration = Duration.between(startSession, minimumEndTimeSession).toMinutes();
+
+		Long canEndLapseTime = maxDuration - minDuration; 
+		
+		if (remainingMinutes.toMinutes() <= canEndLapseTime) {
+			return true;
+		}
+
 		return false;
 	}
 
+	
+	@Override
+	public boolean isCompleteFull() {
+		if (remainingMinutes.toMinutes() == 0) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	
 	@Override
 	public void addConference(Conference conference) {
 		this.conferences.add(conference);
+		calculateRemainingTime();
+	}
+
+	@Override
+	public void quitConference(Conference conference) {
+		this.conferences.remove(conference);
+		calculateRemainingTime();
+	}
+
+	private void calculateRemainingTime() {
+		Long minutesInSession = 0l;
+
+		for (Conference conference : conferences) {
+			minutesInSession += conference.getDuration().toMinutes();
+		}
+
+		Long maxDuration = Duration.between(startSession, maximumEndTimeSession).toMinutes();
+		Long minDuration = Duration.between(startSession, minimumEndTimeSession).toMinutes();
+
+		remainingMinutes = Duration.ofMinutes(maxDuration - minutesInSession);
+	}
+	
+	
+	public void printSession() {
+		System.out.println(this.name + " -> " + "is Full: "+ isFull()+ " - " +this.remainingMinutes.toMinutes() +" minutes free");
+		conferences.forEach(c -> c.printConference());
 	}
 
 	
-	
-	public boolean isFull(){
-		
-		Long minutesInSession = 0l;
-		
-		for (Conference conference : conferences){
-			minutesInSession += conference.getDuration().toMinutes();
-		}
-		
-		Long maxDuration = Duration.between(startSession, maximumEndTimeSession).toMinutes();
-		Long minDuration = Duration.between(startSession, minimumEndTimeSession).toMinutes();
-		
-		if (minDuration.equals(maxDuration) && minutesInSession == maxDuration){
-			return true;
-		} else if (minutesInSession >= minDuration || minutesInSession <= maxDuration) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	
-	
-	
-	public void printSession(){
-		System.out.println(this.name);
-		conferences.forEach(c -> c.printConference());
-	}
-	
+
 }

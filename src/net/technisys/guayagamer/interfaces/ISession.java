@@ -4,7 +4,12 @@ import net.technisys.guayagamer.model.Conference;
 
 public interface ISession {
 
-	public boolean isSessionFull();
+	public boolean isFull();
+	
+	public boolean isCompleteFull();
 	
 	public void addConference(Conference conference);
+	
+	public void quitConference(Conference conference);
+	
 }

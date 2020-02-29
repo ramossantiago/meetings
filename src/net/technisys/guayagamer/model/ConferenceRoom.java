@@ -29,7 +29,7 @@ public class ConferenceRoom {
 	}
 
 	public void printConferenceRoom() {
-		System.out.println(name.toUpperCase()+":");
+		System.out.println(name.toUpperCase()+":" + " -> isFull: "+isFull());
 		sessions.forEach(s -> s.printSession());
 	}
 
