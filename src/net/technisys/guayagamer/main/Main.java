@@ -171,14 +171,17 @@ public class Main {
 
 		Duration duration = Duration.ofMinutes(15);
 
-		System.out.println(duration.toMinutes());
+		//System.out.println(duration.toMinutes());
 
 		LocalTime time = LocalTime.of(10, 0);
 
 		LocalTime time2 = LocalTime.of(10, 30);
 
-		System.out.println(Duration.between(time, time2).toMinutes() + " Minutes");
+		//System.out.println(Duration.between(time, time2).toMinutes() + " Minutes");
 
 	}
 
+	
+	
+	
 }

@@ -1,5 +1,6 @@
 package net.technisys.guayagamer.model;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,31 @@ public class Session implements ISession {
 		this.conferences.add(conference);
 	}
 
+	
+	
+	public boolean isFull(){
+		
+		Long minutesInSession = 0l;
+		
+		for (Conference conference : conferences){
+			minutesInSession += conference.getDuration().toMinutes();
+		}
+		
+		Long maxDuration = Duration.between(startSession, maximumEndTimeSession).toMinutes();
+		Long minDuration = Duration.between(startSession, minimumEndTimeSession).toMinutes();
+		
+		if (minDuration.equals(maxDuration) && minutesInSession == maxDuration){
+			return true;
+		} else if (minutesInSession >= minDuration || minutesInSession <= maxDuration) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	
+	
 	public void printSession(){
 		System.out.println(this.name);
 		conferences.forEach(c -> c.printConference());

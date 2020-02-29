@@ -33,7 +33,16 @@ public class ConferenceRoom {
 		sessions.forEach(s -> s.printSession());
 	}
 
-	
+	public boolean isFull(){
+		
+		for (Session sesion : sessions){
+			if (!sesion.isFull()){
+				return false;
+			}
+		}
+		
+		return true;
+	}
 	
 	
 }
