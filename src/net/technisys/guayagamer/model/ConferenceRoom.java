@@ -31,12 +31,14 @@ public class ConferenceRoom {
 	public void printConferenceRoom() {
 		System.out.println(name.toUpperCase()+":" + " -> isFull: "+isFull());
 		sessions.forEach(s -> s.printSession());
+		System.out.println("");
 	}
 
 	public boolean isFull(){
 		
 		for (Session sesion : sessions){
-			if (!sesion.isFull()){
+			if (!sesion.isCompleteFull()){
+			//if (!sesion.isFull()){
 				return false;
 			}
 		}

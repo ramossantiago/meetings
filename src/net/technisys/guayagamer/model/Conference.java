@@ -38,8 +38,8 @@ public class Conference {
 		}
 	}
 
-	public Duration getDuration() {
-		return duration;
+	public Long getDurationInMinutes() {
+		return duration.toMinutes();
 	}
 
 	public void setDuration(Duration duration) {
@@ -48,6 +48,6 @@ public class Conference {
 	}
 
 	public void printConference() {
-		System.out.println(this.getStartTime() + " " + this.name + this.getDuration().toMinutes() + "min");
+		System.out.println("\t"+this.getStartTime() + " " + this.name +" "+ this.getDurationInMinutes() + "min");
 	}
 }

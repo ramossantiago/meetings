@@ -33,6 +33,8 @@ public class Session implements ISession {
 		this.startSession = startSession;
 		this.minimumEndTimeSession = minimumEndTimeSession;
 		this.maximumEndTimeSession = maximumEndTimeSession;
+		this.minDuration = Duration.between(startSession, minimumEndTimeSession);
+		this.maxDuration = Duration.between(startSession, maximumEndTimeSession);
 		conferences = new ArrayList<>();
 		calculateRemainingTime();
 	}
@@ -81,21 +83,18 @@ public class Session implements ISession {
 		return remainingMinutes.toMinutes();
 	}
 
-	private void setRemainingMinutes(Duration remainingMinutes) {
-		this.remainingMinutes = remainingMinutes;
-	}
+//	private void setRemainingMinutes(Duration remainingMinutes) {
+//		this.remainingMinutes = remainingMinutes;
+//	}
 
 	@Override
 	public boolean isFull() {
-		Long maxDuration = Duration.between(startSession, maximumEndTimeSession).toMinutes();
-		Long minDuration = Duration.between(startSession, minimumEndTimeSession).toMinutes();
-
-		Long canEndLapseTime = maxDuration - minDuration; 
+		Long canEndLapseTime = maxDuration.toMinutes() - minDuration.toMinutes(); 
 		
 		if (remainingMinutes.toMinutes() <= canEndLapseTime) {
 			return true;
 		}
-
+		
 		return false;
 	}
 
@@ -126,18 +125,16 @@ public class Session implements ISession {
 		Long minutesInSession = 0l;
 
 		for (Conference conference : conferences) {
-			minutesInSession += conference.getDuration().toMinutes();
+			minutesInSession += conference.getDurationInMinutes();
 		}
-
 		Long maxDuration = Duration.between(startSession, maximumEndTimeSession).toMinutes();
-		Long minDuration = Duration.between(startSession, minimumEndTimeSession).toMinutes();
 
 		remainingMinutes = Duration.ofMinutes(maxDuration - minutesInSession);
 	}
 	
 	
 	public void printSession() {
-		System.out.println(this.name + " -> " + "is Full: "+ isFull()+ " - " +this.remainingMinutes.toMinutes() +" minutes free");
+		System.out.println(this.name + " -> " + "is Full: "+ isCompleteFull()+ " - " +this.remainingMinutes.toMinutes() +" minutes free");
 		conferences.forEach(c -> c.printConference());
 	}
 

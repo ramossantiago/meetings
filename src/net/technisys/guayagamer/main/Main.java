@@ -45,33 +45,50 @@ public class Main {
 
 		// TODO borrar
 		dummyConference();
+		freeConferences = new ArrayList<>(inputConferences);
 		
-		
-		for (ConferenceRoom room : conferenceRooms) {
-
-			if (!room.isFull()) {
-				
-				
-				
-				
+		int contador = 1;
+		while (!freeConferences.isEmpty()) {
+			
+			for (ConferenceRoom room : conferenceRooms) {
+				for (Session se : room.getSessions()) {
+					if (!se.isCompleteFull()) {
+						addConference(se);
+					}
+				}
 			}
 			
+			System.out.println("CONTADOR "+contador++);
+			
+			if (contador > 20)
+				break;
 		}
-
+		
 		main.conferenceRooms.forEach(c -> c.printConferenceRoom());
+		
+		System.out.println(" ");
+		System.out.println("Free Conferences ");
+		
+		for (Conference c : freeConferences) {
+			c.printConference();
+		}
+			
+		
+		
+	}
 
-		// Main main = new Main();
-
-		Duration duration = Duration.ofMinutes(15);
-
-		// System.out.println(duration.toMinutes());
-
-		LocalTime time = LocalTime.of(10, 0);
-
-		LocalTime time2 = LocalTime.of(10, 30);
-
-		// System.out.println(Duration.between(time, time2).toMinutes() + " Minutes");
-
+	private static void addConference(Session session) {
+		
+		if (!freeConferences.isEmpty()) {
+			
+			Conference nextConference = freeConferences.get(0);
+			 if (session.getRemainingMinutes() >= nextConference.getDurationInMinutes()) {
+				 session.addConference(freeConferences.get(0));
+				 usedConferences.add(freeConferences.get(0));
+				 freeConferences.remove(0);
+			 } 
+			 
+		}
 	}
 
 	private static void dummyConference() {
@@ -180,8 +197,18 @@ public class Main {
 
 		item = new Conference();
 		item.setName("Conferencia 21");
-		item.setDuration(Duration.ofMinutes(15));
+		item.setDuration(Duration.ofMinutes(30));
 		inputConferences.add(item);
+		
+//		item = new Conference();
+//		item.setName("Conferencia 22");
+//		item.setDuration(Duration.ofMinutes(30));
+//		inputConferences.add(item);
+//		
+//		item = new Conference();
+//		item.setName("Conferencia 23");
+//		item.setDuration(Duration.ofMinutes(15));
+//		inputConferences.add(item);
 
 	}
 
