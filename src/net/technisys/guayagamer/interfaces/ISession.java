@@ -10,6 +10,6 @@ public interface ISession {
 	
 	public void addConference(Conference conference);
 	
-	public void quitConference(Conference conference);
+	public void removeConference(Conference conference);
 	
 }

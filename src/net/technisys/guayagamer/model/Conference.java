@@ -10,6 +10,9 @@ public class Conference {
 	private LocalTime startTime;
 	private LocalTime endTime;
 	private Duration duration;
+	public int attempt = 0;
+	
+	
 
 	public String getName() {
 		return name;
@@ -48,6 +51,6 @@ public class Conference {
 	}
 
 	public void printConference() {
-		System.out.println("\t"+this.getStartTime() + " " + this.name +" "+ this.getDurationInMinutes() + "min");
+		System.out.println("\t"+this.getStartTime() + " " + this.name +" "+ this.getDurationInMinutes() + "min" + " used "+attempt);
 	}
 }

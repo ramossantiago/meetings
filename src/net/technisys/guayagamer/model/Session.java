@@ -116,7 +116,7 @@ public class Session implements ISession {
 	}
 
 	@Override
-	public void quitConference(Conference conference) {
+	public void removeConference(Conference conference) {
 		this.conferences.remove(conference);
 		calculateRemainingTime();
 	}
