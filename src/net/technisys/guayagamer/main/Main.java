@@ -2,7 +2,6 @@ package net.technisys.guayagamer.main;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +21,8 @@ public class Main {
 
 	static int contador = 0;
 
+	static int pasada = 0;
+
 	public static void main(String[] args) throws Exception {
 
 		conferenceRooms = new ArrayList<>();
@@ -30,6 +31,7 @@ public class Main {
 		// TODO completar
 		int conferenceRoomNeeded = 3;
 		Session session;
+		pasada = 1;
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
 			ConferenceRoom conferenceRoom = new ConferenceRoom();
 			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
@@ -79,7 +81,7 @@ public class Main {
 		 */
 
 		conferenceRooms = new ArrayList<>();
-
+		pasada = 2;
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
 			ConferenceRoom conferenceRoom = new ConferenceRoom();
 			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
@@ -129,7 +131,7 @@ public class Main {
 		 */
 
 		conferenceRooms = new ArrayList<>();
-
+		pasada = 3;
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
 			ConferenceRoom conferenceRoom = new ConferenceRoom();
 			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
@@ -187,6 +189,7 @@ public class Main {
 				freeConferencesQueue.remove(nextConference);
 			} else {
 				checkOtherConferences(session);
+				rescheduleInSameSession(session, nextConference);
 				fixConference2(session, nextConference);
 			}
 		}
@@ -195,8 +198,6 @@ public class Main {
 	private static void checkOtherConferences(Session session) throws Exception {
 		List<Conference> fixingConferences = new ArrayList<>();
 
-		// buscando una conferencia libre dentro de la lista de disponibles que calce en
-		// tiempo exactamente
 		for (Conference freeConf : freeConferencesQueue) {
 			if (freeConf.getDurationInMinutes().equals(session.getRemainingMinutes())) {
 				fixingConferences.add(freeConf);
@@ -209,148 +210,19 @@ public class Main {
 				freeConferencesQueue.remove(fixConference);
 				session.addConference(fixConference);
 			}
-			return;
 		}
 
 	}
 
-	private static void fixConference(Session session, Conference nextConference) throws Exception {
+	private static void rescheduleInSameSession(Session session, Conference nextConference) {
 
-		long neededTimeForFix = nextConference.getDurationInMinutes();
-		long totalTime = 0;
-		List<Conference> fixingConferences = new ArrayList<>();
-		Session sessionForChangeSchedule = null;
-
-		for (Conference freeConf : freeConferencesQueue) {
-			if (freeConf.getDurationInMinutes().equals(session.getRemainingMinutes())) {
-				fixingConferences.add(freeConf);
-				break;
-			}
-		}
-
-		if (!fixingConferences.isEmpty()) {
-			for (Conference fixConference : fixingConferences) {
-				freeConferencesQueue.remove(fixConference);
-				session.addConference(fixConference);
-			}
-			return;
-		}
-
-		// *******************************************************
-		// else {
-		// Si NO encontre una conferencia disponible que coincida en tiempo, voy a mover
-		// la calendarizacion
-
-		System.out.println("");
-		System.out.println("***");
-		System.out.println("NO puedo ubicar la conferencia " + nextConference.getName() + ": "
-				+ nextConference.getDurationInMinutes() + "min, en session " + session.getName() + ": "
-				+ session.getRemainingMinutes() + "min");
-
-		conferenceRooms.forEach(c -> c.printConferenceRoom());
-		System.out.println(" ");
-		System.out.println("Free Conferences ");
-
-		for (Conference c : freeConferencesQueue) {
-			c.printConference();
-		}
-		System.out.println("***");
-
-		if (contador == 100) {
-			System.out.println("Detener");
-		}
-
-		// BUSCAR EN OTRAS SESSIONES POR COINCIDENCIAS
-		System.out.println("Buscar en otras sesiones");
-
-		long diferencia = neededTimeForFix - session.getRemainingMinutes();
-
-		rooms: for (ConferenceRoom room : conferenceRooms) {
-
-			// for (Session ses : room.getSessions()) {
-			//
-			// if (ses.getRemainingMinutes() > 0) {
-			// diferencia = neededTimeForFix - ses.getRemainingMinutes();
-			// for (Conference co : ses.getConferences()) {
-			// if (co.getDurationInMinutes().equals(diferencia)) {
-			// fixingConferences.add(co);
-			// sessionForChangeSchedule = ses;
-			// break rooms;
-			// }
-			// }
-			// }
-			// }
-
-			for (Session ses : room.getSessions()) {
-				totalTime = 0;
-				fixingConferences = new ArrayList<>();
-
-				ses.getConferences().sort(new Comparator<Conference>() {
-
-					@Override
-					public int compare(Conference c1, Conference c2) {
-						return c1.getDurationInMinutes().compareTo(c2.getDurationInMinutes());
-					}
-				});
-
-				for (Conference co : ses.getConferences()) {
-
-					if (co.getDurationInMinutes() < neededTimeForFix) {
-						totalTime += co.getDurationInMinutes();
-						fixingConferences.add(co);
-					}
-
-					if (totalTime == neededTimeForFix) {
-						sessionForChangeSchedule = ses;
-						break rooms;
-					}
-				}
-			}
-		}
-
-		if (!Objects.isNull(sessionForChangeSchedule)) {
-			for (Conference conf : fixingConferences) {
-				sessionForChangeSchedule.removeConference(conf);
-				freeConferencesQueue.add(conf);
-			}
-			sessionForChangeSchedule.addConference(nextConference);
-			freeConferencesQueue.remove(nextConference);
-		}
-
-	}
-
-	private static void fixConference2(Session session, Conference nextConference) throws Exception {
-
-
-		long neededTimeForFix = nextConference.getDurationInMinutes();
-		List<Conference> fixingConferences = new ArrayList<>();
-		
-		// IR A BUSCAR EN LAS OTRA SESSIONES, NO UNICMANETE EN AL PROPIA
-
-		// System.out.println("");
-		// System.out.println("***");
-		// System.out.println("NO puedo ubicar la conferencia " +
-		// nextConference.getName() + ": "
-		// + nextConference.getDurationInMinutes() + "min, en session " +
-		// session.getName() + ": "
-		// + session.getRemainingMinutes() + "min");
-		//
-		// conferenceRooms.forEach(c -> c.printConferenceRoom());
-		// System.out.println(" ");
-		// System.out.println("Free Conferences ");
-		//
-		// for (Conference c : freeConferencesQueue) {
-		// c.printConference();
-		// }
-		// System.out.println("***");
-
-		long diferencia = neededTimeForFix - session.getRemainingMinutes();
+		long neededTimeForFix = nextConference.getDurationInMinutes() - session.getRemainingMinutes();
 		Conference deleteConference = new Conference();
 		boolean sucessChanged = false;
 
 		// QUITAR UNA QUE TENGA LA DURACION FALTANTE
 		for (Conference conf : session.getConferences()) {
-			if (conf.getDurationInMinutes().equals(diferencia)) {
+			if (conf.getDurationInMinutes().equals(neededTimeForFix)) {
 				deleteConference = conf;
 				sucessChanged = true;
 				break;
@@ -361,7 +233,7 @@ public class Main {
 		// UBICAR
 		if (!sucessChanged) {
 			for (Conference conf : session.getConferences()) {
-				if (conf.getDurationInMinutes().equals(nextConference.getDurationInMinutes() + diferencia)) {
+				if (conf.getDurationInMinutes().equals(nextConference.getDurationInMinutes() + neededTimeForFix)) {
 					deleteConference = conf;
 					sucessChanged = true;
 					break;
@@ -376,11 +248,20 @@ public class Main {
 			return;
 		}
 
+	}
+
+	private static void fixConference2(Session session, Conference nextConference) throws Exception {
+
+		long neededTimeForFix = nextConference.getDurationInMinutes();
+		List<Conference> fixingConferences = new ArrayList<>();
+
 		// BUSCAR EN OTRAS SESSIONES POR COINCIDENCIAS
 		long totalTime = 0;
 		Session sessionForChangeSchedule = null;
-		
+
 		rooms: for (ConferenceRoom room : conferenceRooms) {
+
+			// System.out.println("vetrificando");
 
 			for (Session ses : room.getSessions()) {
 				totalTime = 0;
@@ -424,6 +305,7 @@ public class Main {
 	}
 
 	private static void dummyConference() {
+		inputConferences = new ArrayList<>();
 
 		// put conference inside rooms
 		// TODO delete
