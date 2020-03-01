@@ -19,12 +19,7 @@ public class Session implements ISession {
 	private Duration maxDuration;
 	
 	private Duration remainingMinutes;
-	private Duration usedMinutes;
 
-//	public Session() {
-//		conferences = new ArrayList<>();
-//		this.remainingMinutes = Duration.ZERO;
-//	}
 
 	public Session(String name, LocalTime startSession, LocalTime minimumEndTimeSession,
 			LocalTime maximumEndTimeSession) {
@@ -37,7 +32,7 @@ public class Session implements ISession {
 		this.minDuration = Duration.between(startSession, minimumEndTimeSession);
 		this.maxDuration = Duration.between(startSession, maximumEndTimeSession);
 		conferences = new ArrayList<>();
-		calculateUsedRemainingTime();
+		calculateRemainingTime();
 	}
 
 	public String getName() {
@@ -84,28 +79,22 @@ public class Session implements ISession {
 		return remainingMinutes.toMinutes();
 	}
 
-//	private void setRemainingMinutes(Duration remainingMinutes) {
-//		this.remainingMinutes = remainingMinutes;
+	//@Override
+//	private boolean isFull() {
+//		Long canEndLapseTime = maxDuration.toMinutes() - minDuration.toMinutes(); 
+//		
+//		if (remainingMinutes.toMinutes() <= canEndLapseTime) {
+//			return true;
+//		}
+//		return false;
 //	}
-
-	@Override
-	public boolean isFull() {
-		Long canEndLapseTime = maxDuration.toMinutes() - minDuration.toMinutes(); 
-		
-		if (remainingMinutes.toMinutes() <= canEndLapseTime) {
-			return true;
-		}
-		
-		return false;
-	}
 
 	
 	@Override
-	public boolean isCompleteFull() {
+	public boolean isFull() {
 		if (remainingMinutes.toMinutes() == 0) {
 			return true;
 		}
-
 		return false;
 	}
 	
@@ -113,34 +102,33 @@ public class Session implements ISession {
 	@Override
 	public void addConference(Conference conference) throws Exception {
 
-		if (isCompleteFull()) {
+		if (isFull()) {
 			throw new Exception("La session esta llena");
 		}
 		
 		this.conferences.add(conference);
-		calculateUsedRemainingTime();
+		calculateRemainingTime();
 	}
 
 	@Override
 	public void removeConference(Conference conference) {
 		this.conferences.remove(conference);
-		calculateUsedRemainingTime();
+		calculateRemainingTime();
 	}
 
-	private void calculateUsedRemainingTime() {
+	private void calculateRemainingTime() {
 		Long minutesInSession = 0l;
 
 		for (Conference conference : conferences) {
 			minutesInSession += conference.getDurationInMinutes();
 		}
 
-		usedMinutes = Duration.ofMinutes(minutesInSession);
 		remainingMinutes = Duration.ofMinutes(maxDuration.toMinutes() - minutesInSession);
 	}
 	
 	
 	public void printSession() {
-		System.out.println(this.name + " -> " + "is Full: "+ isCompleteFull()+ " - " +this.remainingMinutes.toMinutes() +" minutes free");
+		System.out.println(this.name + " -> " + "is Full: "+ isFull()+ " - " +this.remainingMinutes.toMinutes() +" minutes free");
 		long timeUsed = 0;
 		
 		for (Conference conference : conferences) {
@@ -148,15 +136,5 @@ public class Session implements ISession {
 			timeUsed += conference.getDurationInMinutes();
 			conference.printConference();
 		}
-		
-		
-//		conferences.forEach(c -> {
-//			//c.setStartTime(this.getStartSession().plusMinutes(timeUsed));
-//			//timeUsed += c.getDurationInMinutes();
-//			c.printConference();
-//		});
 	}
-
-	
-
 }

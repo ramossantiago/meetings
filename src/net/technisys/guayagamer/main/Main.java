@@ -59,7 +59,7 @@ public class Main {
 
 			for (ConferenceRoom room : conferenceRooms) {
 				for (Session se : room.getSessions()) {
-					if (!se.isCompleteFull()) {
+					if (!se.isFull()) {
 						addConferences(se);
 					}
 				}
@@ -104,7 +104,7 @@ public class Main {
 				fixConference(session, nextConference);
 			}
 
-			if (!session.isCompleteFull() && !freeConferencesQueue.isEmpty()) {
+			if (!session.isFull() && !freeConferencesQueue.isEmpty()) {
 				addConferences(session);
 			}
 

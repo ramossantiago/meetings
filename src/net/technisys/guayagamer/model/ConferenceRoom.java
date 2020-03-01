@@ -37,7 +37,7 @@ public class ConferenceRoom {
 	public boolean isFull(){
 		
 		for (Session sesion : sessions){
-			if (!sesion.isCompleteFull()){
+			if (!sesion.isFull()){
 			//if (!sesion.isFull()){
 				return false;
 			}
