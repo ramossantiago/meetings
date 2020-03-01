@@ -186,7 +186,7 @@ public class Main {
 				session.addConference(nextConference);
 				freeConferencesQueue.remove(nextConference);
 			} else {
-				// checkOtherConferences(session);
+				checkOtherConferences(session);
 				fixConference2(session, nextConference);
 			}
 		}
@@ -321,24 +321,10 @@ public class Main {
 
 	private static void fixConference2(Session session, Conference nextConference) throws Exception {
 
-		Conference fixConference = null;
-		long neededTime = nextConference.getDurationInMinutes();
 
-		// buscando una conferencia libre dentro de la lista que calce en tiempo
-		for (Conference freeConf : freeConferencesQueue) {
-			if (session.getRemainingMinutes() == freeConf.getDurationInMinutes()) {
-				fixConference = freeConf;
-				break;
-			}
-		}
-
-		if (!Objects.isNull(fixConference)) {
-			// usedConferences.add(fixConference);
-			freeConferencesQueue.remove(fixConference);
-			session.addConference(fixConference);
-			return;
-		}
-
+		long neededTimeForFix = nextConference.getDurationInMinutes();
+		List<Conference> fixingConferences = new ArrayList<>();
+		
 		// IR A BUSCAR EN LAS OTRA SESSIONES, NO UNICMANETE EN AL PROPIA
 
 		// System.out.println("");
@@ -358,7 +344,7 @@ public class Main {
 		// }
 		// System.out.println("***");
 
-		long diferencia = neededTime - session.getRemainingMinutes();
+		long diferencia = neededTimeForFix - session.getRemainingMinutes();
 		Conference deleteConference = new Conference();
 		boolean sucessChanged = false;
 
@@ -393,7 +379,7 @@ public class Main {
 		// BUSCAR EN OTRAS SESSIONES POR COINCIDENCIAS
 		long totalTime = 0;
 		Session sessionForChangeSchedule = null;
-		List<Conference> fixingConferences = new ArrayList<>();
+		
 		rooms: for (ConferenceRoom room : conferenceRooms) {
 
 			for (Session ses : room.getSessions()) {
@@ -414,12 +400,12 @@ public class Main {
 
 				for (Conference co : ses.getConferences()) {
 
-					if (co.getDurationInMinutes() < neededTime) {
+					if (co.getDurationInMinutes() < neededTimeForFix) {
 						totalTime += co.getDurationInMinutes();
 						fixingConferences.add(co);
 					}
 
-					if (totalTime == neededTime) {
+					if (totalTime == neededTimeForFix) {
 						sessionForChangeSchedule = ses;
 						break rooms;
 					}
