@@ -11,7 +11,7 @@ public class ConferenceRoom {
 	public ConferenceRoom() {
 		sessions = new ArrayList<>();
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -29,22 +29,20 @@ public class ConferenceRoom {
 	}
 
 	public void printConferenceRoom() {
-		System.out.println(name.toUpperCase()+":" + " -> isFull: "+isFull());
+		System.out.println(name.toUpperCase() + ":" + " -> isFull: " + isFull());
 		sessions.forEach(s -> s.printSession());
 		System.out.println("");
 	}
 
-	public boolean isFull(){
-		
-		for (Session sesion : sessions){
-			if (!sesion.isFull()){
-			//if (!sesion.isFull()){
+	public boolean isFull() {
+
+		for (Session sesion : sessions) {
+			if (!sesion.isFull()) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
-	
+
 }

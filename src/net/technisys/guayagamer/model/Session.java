@@ -4,7 +4,10 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import net.technisys.guayagamer.exceptions.AddConferenceException;
+import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
 import net.technisys.guayagamer.interfaces.ISession;
 
 public class Session implements ISession {
@@ -14,22 +17,34 @@ public class Session implements ISession {
 	private LocalTime minimumEndTimeSession;
 	private LocalTime maximumEndTimeSession;
 	private List<Conference> conferences;
-	
-	private Duration minDuration;
 	private Duration maxDuration;
-	
 	private Duration remainingMinutes;
 
-
 	public Session(String name, LocalTime startSession, LocalTime minimumEndTimeSession,
-			LocalTime maximumEndTimeSession) {
+			LocalTime maximumEndTimeSession) throws InvalidArgumentsException {
 		super();
-		// TODO validate input and throw exception
+
+		if (Objects.isNull(name) || "".equals(name.trim())) {
+			throw new InvalidArgumentsException("Session name is required");
+		}
+
+		if (Objects.isNull(startSession) || Objects.isNull(minimumEndTimeSession)
+				|| Objects.isNull(maximumEndTimeSession)) {
+			throw new InvalidArgumentsException("Session, Start, minimun and maximun time are required");
+		}
+
+		if (startSession.compareTo(minimumEndTimeSession) == 0 || startSession.compareTo(maximumEndTimeSession) == 0) {
+			throw new InvalidArgumentsException("Session duration can't be zero or less");
+		}
+
+		if (minimumEndTimeSession.isAfter(maximumEndTimeSession) || startSession.isAfter(minimumEndTimeSession)) {
+			throw new InvalidArgumentsException("Session, Start time, minimun or maximun time are incorrect");
+		}
+
 		this.name = name;
 		this.startSession = startSession;
 		this.minimumEndTimeSession = minimumEndTimeSession;
 		this.maximumEndTimeSession = maximumEndTimeSession;
-		this.minDuration = Duration.between(startSession, minimumEndTimeSession);
 		this.maxDuration = Duration.between(startSession, maximumEndTimeSession);
 		conferences = new ArrayList<>();
 		calculateRemainingTime();
@@ -79,17 +94,6 @@ public class Session implements ISession {
 		return remainingMinutes.toMinutes();
 	}
 
-	//@Override
-//	private boolean isFull() {
-//		Long canEndLapseTime = maxDuration.toMinutes() - minDuration.toMinutes(); 
-//		
-//		if (remainingMinutes.toMinutes() <= canEndLapseTime) {
-//			return true;
-//		}
-//		return false;
-//	}
-
-	
 	@Override
 	public boolean isFull() {
 		if (remainingMinutes.toMinutes() == 0) {
@@ -97,15 +101,14 @@ public class Session implements ISession {
 		}
 		return false;
 	}
-	
-	
+
 	@Override
 	public void addConference(Conference conference) throws Exception {
 
-		if (isFull()) {
-			throw new Exception("La session esta llena");
+		if (isFull() || remainingMinutes.toMinutes() < conference.getDurationInMinutes()) {
+			throw new AddConferenceException();
 		}
-		
+
 		this.conferences.add(conference);
 		calculateRemainingTime();
 	}
@@ -125,12 +128,12 @@ public class Session implements ISession {
 
 		remainingMinutes = Duration.ofMinutes(maxDuration.toMinutes() - minutesInSession);
 	}
-	
-	
+
 	public void printSession() {
-		System.out.println(this.name + " -> " + "is Full: "+ isFull()+ " - " +this.remainingMinutes.toMinutes() +" minutes free");
+		System.out.println(this.name + " -> " + "is Full: " + isFull() + " - " + this.remainingMinutes.toMinutes()
+				+ " minutes free");
 		long timeUsed = 0;
-		
+
 		for (Conference conference : conferences) {
 			conference.setStartTime(this.getStartSession().plusMinutes(timeUsed));
 			timeUsed += conference.getDurationInMinutes();

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import net.technisys.guayagamer.constant.Constant;
+import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
 import net.technisys.guayagamer.model.Conference;
 import net.technisys.guayagamer.model.ConferenceRoom;
 import net.technisys.guayagamer.model.Session;
@@ -21,8 +22,6 @@ public class Main {
 
 	static int contador = 0;
 
-	static int pasada = 0;
-
 	public static void main(String[] args) throws Exception {
 
 		conferenceRooms = new ArrayList<>();
@@ -31,7 +30,7 @@ public class Main {
 		// TODO completar
 		int conferenceRoomNeeded = 3;
 		Session session;
-		pasada = 1;
+
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
 			ConferenceRoom conferenceRoom = new ConferenceRoom();
 			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
@@ -81,7 +80,6 @@ public class Main {
 		 */
 
 		conferenceRooms = new ArrayList<>();
-		pasada = 2;
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
 			ConferenceRoom conferenceRoom = new ConferenceRoom();
 			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
@@ -131,7 +129,6 @@ public class Main {
 		 */
 
 		conferenceRooms = new ArrayList<>();
-		pasada = 3;
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
 			ConferenceRoom conferenceRoom = new ConferenceRoom();
 			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
@@ -180,22 +177,20 @@ public class Main {
 	private static void addConferences(Session session) throws Exception {
 
 		if (!freeConferencesQueue.isEmpty()) {
-
 			Conference nextConference = freeConferencesQueue.getFirst();
-			// nextConference.attempt += 1;
 
 			if (session.getRemainingMinutes() >= nextConference.getDurationInMinutes()) {
 				session.addConference(nextConference);
 				freeConferencesQueue.remove(nextConference);
 			} else {
-				checkOtherConferences(session);
-				rescheduleInSameSession(session, nextConference);
-				fixConference2(session, nextConference);
+				tryOtherConferences(session);
+				rescheduleSameSession(session, nextConference);
+				rescheduleOtherSession(session, nextConference);
 			}
 		}
 	}
 
-	private static void checkOtherConferences(Session session) throws Exception {
+	private static void tryOtherConferences(Session session) throws Exception {
 		List<Conference> fixingConferences = new ArrayList<>();
 
 		for (Conference freeConf : freeConferencesQueue) {
@@ -214,7 +209,7 @@ public class Main {
 
 	}
 
-	private static void rescheduleInSameSession(Session session, Conference nextConference) {
+	private static void rescheduleSameSession(Session session, Conference nextConference) {
 
 		long neededTimeForFix = nextConference.getDurationInMinutes() - session.getRemainingMinutes();
 		Conference deleteConference = new Conference();
@@ -250,21 +245,18 @@ public class Main {
 
 	}
 
-	private static void fixConference2(Session session, Conference nextConference) throws Exception {
+	private static void rescheduleOtherSession(Session session, Conference nextConference) throws Exception {
 
 		long neededTimeForFix = nextConference.getDurationInMinutes();
-		List<Conference> fixingConferences = new ArrayList<>();
+		long sessionTotalTime = 0;
 
-		// BUSCAR EN OTRAS SESSIONES POR COINCIDENCIAS
-		long totalTime = 0;
+		List<Conference> fixingConferences = new ArrayList<>();
 		Session sessionForChangeSchedule = null;
 
 		rooms: for (ConferenceRoom room : conferenceRooms) {
 
-			// System.out.println("vetrificando");
-
 			for (Session ses : room.getSessions()) {
-				totalTime = 0;
+				sessionTotalTime = 0;
 				fixingConferences = new ArrayList<>();
 
 				if (ses.getName().equals(session.getName())) {
@@ -282,11 +274,11 @@ public class Main {
 				for (Conference co : ses.getConferences()) {
 
 					if (co.getDurationInMinutes() < neededTimeForFix) {
-						totalTime += co.getDurationInMinutes();
+						sessionTotalTime += co.getDurationInMinutes();
 						fixingConferences.add(co);
 					}
 
-					if (totalTime == neededTimeForFix) {
+					if (sessionTotalTime == neededTimeForFix) {
 						sessionForChangeSchedule = ses;
 						break rooms;
 					}
@@ -304,14 +296,12 @@ public class Main {
 		}
 	}
 
-	private static void dummyConference() {
+	private static void dummyConference() throws InvalidArgumentsException {
 		inputConferences = new ArrayList<>();
 
 		// put conference inside rooms
 		// TODO delete
-		Conference item = new Conference();
-		item.setName("Conferencia uno");
-		item.setDuration(Duration.ofMinutes(30));
+		Conference item = new Conference("Conferencia uno", Duration.ofMinutes(30));
 		inputConferences.add(item);
 
 		item = new Conference();
