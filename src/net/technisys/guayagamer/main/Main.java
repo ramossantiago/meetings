@@ -93,14 +93,11 @@ public class Main {
 
 			if (session.getRemainingMinutes() >= nextConference.getDurationInMinutes()) {
 				session.addConference(nextConference);
-				// usedConferences.add(nextConference);
 				freeConferencesQueue.remove(nextConference);
 			} else {
 				System.out.println("NO puedo ubicar la conferencia " + nextConference.getName() + ": "
 						+ nextConference.getDurationInMinutes() + "min, en session " + session.getName() + ": "
 						+ session.getRemainingMinutes() + "min");
-				// freeConferencesQueue.removeFirst();
-				// freeConferencesQueue.add(nextConference);
 			}
 
 			if (nextConference.attempt > 3) {
@@ -226,7 +223,6 @@ public class Main {
 								break rooms;
 							}
 						}
-
 					}
 				}
 
@@ -240,19 +236,7 @@ public class Main {
 				}
 			}
 
-			// BORRAR UNA MAS GRANDE EN CASO DE NO HABE UNA COINCIDENCIA EXACTA
-			// if (Objects.isNull(deleteConference.getName())) {
-			// for (Conference conf : session.getConferences()) {
-			// if (conf.getDurationInMinutes() > diferencia) {
-			// deleteConference = conf;
-			// deleteConference.attempt = 0;
-			// break;
-			// }
-			// }
-			// }
-
 		}
-
 	}
 
 	private static void dummyConference() {
@@ -363,16 +347,16 @@ public class Main {
 //		item.setName("Conferencia 21");
 //		item.setDuration(Duration.ofMinutes(30));
 //		inputConferences.add(item);
-//
-//		item = new Conference();
-//		item.setName("Conferencia 22");
-//		item.setDuration(Duration.ofMinutes(30));
-//		inputConferences.add(item);
-//
-//		item = new Conference();
-//		item.setName("Conferencia 23");
-//		item.setDuration(Duration.ofMinutes(15));
-//		inputConferences.add(item);
+
+		item = new Conference();
+		item.setName("Conferencia 22");
+		item.setDuration(Duration.ofMinutes(45));
+		inputConferences.add(item);
+
+		item = new Conference();
+		item.setName("Conferencia 23");
+		item.setDuration(Duration.ofMinutes(15));
+		inputConferences.add(item);
 
 	}
 
