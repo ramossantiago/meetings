@@ -8,7 +8,7 @@ public interface ISession {
 	
 	public boolean isCompleteFull();
 	
-	public void addConference(Conference conference);
+	public void addConference(Conference conference) throws Exception;
 	
 	public void removeConference(Conference conference);
 	

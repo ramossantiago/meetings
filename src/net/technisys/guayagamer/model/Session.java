@@ -110,9 +110,14 @@ public class Session implements ISession {
 	
 	
 	@Override
-	public void addConference(Conference conference) {
-		this.conferences.add(conference);
-		calculateRemainingTime();
+	public void addConference(Conference conference) throws Exception {
+		
+		if (!isCompleteFull()) {
+			this.conferences.add(conference);
+			calculateRemainingTime();
+		} else {
+			throw new Exception("La session esta llena");
+		}
 	}
 
 	@Override
