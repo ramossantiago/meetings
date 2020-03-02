@@ -132,10 +132,7 @@ public class Session implements ISession {
 
 	@Override
 	public void printSession() {
-		System.out.println(this.name + " -> " + "is Full: " + isFull() + " - " + this.remainingMinutes.toMinutes()
-				+ " minutes free");
 		long timeUsed = 0;
-
 		Conference lastConference = null;
 
 		for (Conference conference : conferences) {
