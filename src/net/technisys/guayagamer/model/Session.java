@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import net.technisys.guayagamer.exceptions.AddConferenceException;
+import net.technisys.guayagamer.constant.Constant;
 import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
+import net.technisys.guayagamer.exceptions.SessionException;
 import net.technisys.guayagamer.interfaces.ISession;
 
 public class Session implements ISession {
@@ -106,7 +107,7 @@ public class Session implements ISession {
 	public void addConference(Conference conference) throws Exception {
 
 		if (isFull() || remainingMinutes.toMinutes() < conference.getDurationInMinutes()) {
-			throw new AddConferenceException();
+			throw new SessionException("The conference is more big than remaing session time");
 		}
 
 		this.conferences.add(conference);
@@ -129,15 +130,33 @@ public class Session implements ISession {
 		remainingMinutes = Duration.ofMinutes(maxDuration.toMinutes() - minutesInSession);
 	}
 
+	@Override
 	public void printSession() {
 		System.out.println(this.name + " -> " + "is Full: " + isFull() + " - " + this.remainingMinutes.toMinutes()
 				+ " minutes free");
 		long timeUsed = 0;
 
+		Conference lastConference = null;
+
 		for (Conference conference : conferences) {
 			conference.setStartTime(this.getStartSession().plusMinutes(timeUsed));
 			timeUsed += conference.getDurationInMinutes();
 			conference.printConference();
+
+			if (conference.getEndTime().equals(Constant.START_LUNCH)) {
+				System.out.println("\t" + Constant.START_LUNCH + "-" + Constant.END_LUNCH + " " + Constant.LUNCH);
+			}
+			lastConference = conference;
+		}
+
+		if (this.getStartSession().equals(Constant.START_TIME_EVENING_SESSION)) {
+			System.out.print("\t");
+			if (lastConference.getEndTime().isAfter(Constant.MIN_END_TIME_EVENING_SESSION)) {
+				System.out.print(lastConference.getEndTime() + "-     ");
+			} else {
+				System.out.print(Constant.MIN_END_TIME_EVENING_SESSION + "-     ");
+			}
+			System.out.println(" " + Constant.REVIEW);
 		}
 	}
 }

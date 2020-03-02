@@ -12,6 +12,12 @@ public class ConferenceRoom {
 		sessions = new ArrayList<>();
 	}
 
+	public ConferenceRoom(String name) {
+		super();
+		this.name = name;
+		sessions = new ArrayList<>();
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -29,9 +35,10 @@ public class ConferenceRoom {
 	}
 
 	public void printConferenceRoom() {
-		System.out.println(name.toUpperCase() + ":" + " -> isFull: " + isFull());
+		System.out.println(name.toUpperCase());
 		sessions.forEach(s -> s.printSession());
 		System.out.println("");
+
 	}
 
 	public boolean isFull() {

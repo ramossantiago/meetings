@@ -5,8 +5,9 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
+import net.technisys.guayagamer.interfaces.IConference;
 
-public class Conference {
+public class Conference implements IConference {
 
 	private String name;
 	private LocalTime startTime;
@@ -14,7 +15,6 @@ public class Conference {
 	private Duration duration;
 
 	public Conference() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Conference(String name, Duration duration) throws InvalidArgumentsException {
@@ -59,6 +59,7 @@ public class Conference {
 		}
 	}
 
+	@Override
 	public Long getDurationInMinutes() {
 		return duration.toMinutes();
 	}
@@ -67,7 +68,9 @@ public class Conference {
 		this.duration = duration;
 	}
 
+	@Override
 	public void printConference() {
-		System.out.println("\t" + this.getStartTime() + " " + this.name + " " + this.getDurationInMinutes() + "min");
+		System.out.println("\t" + this.getStartTime() + "-" + this.getEndTime() + " " + this.name + " "
+				+ this.getDurationInMinutes() + "min");
 	}
 }

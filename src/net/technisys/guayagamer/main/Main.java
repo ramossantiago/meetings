@@ -1,11 +1,15 @@
 package net.technisys.guayagamer.main;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.technisys.guayagamer.constant.Constant;
 import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
@@ -15,7 +19,6 @@ import net.technisys.guayagamer.model.Session;
 
 public class Main {
 
-	private String[] inputConferencesString = { "my first nintendo 30min", "game sega cuarto", "sony vega 60min" };
 	private static List<Conference> inputConferences = new ArrayList<>();
 	private static LinkedList<Conference> freeConferencesQueue = new LinkedList<>();
 	private static List<ConferenceRoom> conferenceRooms;
@@ -24,31 +27,92 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
+		if (args.length == 0) {
+			System.out.println("No se ha detallado el archivo de entrada de conferencias");
+			System.out.println("Se debe ejecutar ejecutable.jar <filename>");
+		}
+		String filename = args[0];
+
+		int lineNumber = 1;
+		Long duration = 0l;
+		String line;
+		File file;
+		Scanner sc = null;
+		Duration totalConferenceDuration = Duration.ofMinutes(0);
+
+		try {
+			file = new File(filename);
+			sc = new Scanner(file);
+			Pattern regex = Pattern.compile(Constant.CONFERENCE_REGEX, Pattern.CASE_INSENSITIVE);
+
+			while (sc.hasNextLine()) {
+				line = sc.nextLine();
+				duration = 0l;
+
+				Matcher match = regex.matcher(line.trim());
+				if (match.find()) {
+					String nombreConferencia = match.group(1);
+
+					if (match.group(2).equalsIgnoreCase(Constant.CUARTO)) {
+						duration = Constant.CUARTO_DURATION;
+					} else {
+						duration = Long.valueOf(match.group(3));
+					}
+					totalConferenceDuration = totalConferenceDuration.plusMinutes(duration);
+
+					inputConferences.add(new Conference(nombreConferencia, Duration.ofMinutes(duration)));
+
+				} else {
+					System.out.println("No se pudo procesar la linea; \"" + line
+							+ "\", como una entrada de conferencia valida, Favor revise el archivo y ejecute nuevamente");
+				}
+			}
+		} catch (InvalidArgumentsException e) {
+			System.out.println(e.getMessage());
+		} catch (NumberFormatException e) {
+			System.out.println("El numero de duracion enviado no es un numero valido, linea " + lineNumber);
+		} finally {
+			if (!Objects.isNull(sc)) {
+				sc.close();
+			}
+		}
+
 		conferenceRooms = new ArrayList<>();
+		int conferenceRoomNeeded = 0;
 
-		// calculate rooms needed
-		// TODO completar
-		int conferenceRoomNeeded = 3;
+		Double resultado = Double.valueOf(totalConferenceDuration.toMinutes())
+				/ Double.valueOf(Constant.MAX_HOUR_PER_ROOM * 60);
+		conferenceRoomNeeded = (int) resultado.doubleValue();
+		if ((resultado - conferenceRoomNeeded) > 0) {
+			conferenceRoomNeeded++;
+		}
+
 		Session session;
-
 		for (int i = 0; i < conferenceRoomNeeded; i++) {
-			ConferenceRoom conferenceRoom = new ConferenceRoom();
-			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
-
+			ConferenceRoom conferenceRoom = new ConferenceRoom(Constant.CONFERENCE_ROOM + " " + (i + 1));
 			session = new Session(conferenceRoom.getName() + " " + Constant.MORNING_SESSION,
 					Constant.START_TIME_MORNING_SESSION, Constant.END_TIME_MORNING_SESSION,
 					Constant.END_TIME_MORNING_SESSION);
 			conferenceRoom.getSessions().add(session);
+
+			// session = new Session(Constant.LUNCH, Constant.START_LUNCH,
+			// Constant.END_LUNCH, Constant.END_LUNCH);
+			// conferenceRoom.getSessions().add(session);
+
 			session = new Session(conferenceRoom.getName() + " " + Constant.EVENING_SESSION,
 					Constant.START_TIME_EVENING_SESSION, Constant.MIN_END_TIME_EVENING_SESSION,
 					Constant.MAX_END_TIME_EVENING_SESSION);
 			conferenceRoom.getSessions().add(session);
 
+			// session = new Session(Constant.REVIEW, Constant.START_REVIEW,
+			// Constant.END_REVIEW, Constant.END_REVIEW);
+			// conferenceRoom.getSessions().add(session);
+
 			conferenceRooms.add(conferenceRoom);
 		}
 
 		// TODO borrar
-		dummyConference();
+		// dummyConference();
 		// freeConferences = new ArrayList<>(inputConferences);
 		freeConferencesQueue = new LinkedList<>(inputConferences);
 
@@ -62,115 +126,8 @@ public class Main {
 			}
 		}
 
-		System.out.println("");
-		System.out.println("***********************");
 		System.out.println("FINAL RESULT:");
 		conferenceRooms.forEach(c -> c.printConferenceRoom());
-
-		System.out.println(" ");
-		System.out.println("Free Conferences ");
-
-		for (Conference c : freeConferencesQueue) {
-			c.printConference();
-		}
-
-		/**
-		 * *********************************************************
-		 * *********************************************************
-		 */
-
-		conferenceRooms = new ArrayList<>();
-		for (int i = 0; i < conferenceRoomNeeded; i++) {
-			ConferenceRoom conferenceRoom = new ConferenceRoom();
-			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
-
-			session = new Session(conferenceRoom.getName() + " " + Constant.MORNING_SESSION,
-					Constant.START_TIME_MORNING_SESSION, Constant.END_TIME_MORNING_SESSION,
-					Constant.END_TIME_MORNING_SESSION);
-			conferenceRoom.getSessions().add(session);
-			session = new Session(conferenceRoom.getName() + " " + Constant.EVENING_SESSION,
-					Constant.START_TIME_EVENING_SESSION, Constant.MIN_END_TIME_EVENING_SESSION,
-					Constant.MAX_END_TIME_EVENING_SESSION);
-			conferenceRoom.getSessions().add(session);
-
-			conferenceRooms.add(conferenceRoom);
-		}
-
-		// TODO borrar
-		dummyConference2();
-		// freeConferences = new ArrayList<>(inputConferences);
-		freeConferencesQueue = new LinkedList<>(inputConferences);
-
-		contador = 1;
-		for (ConferenceRoom room : conferenceRooms) {
-			for (Session se : room.getSessions()) {
-				while (!se.isFull() && !freeConferencesQueue.isEmpty()) {
-					// System.out.println("CONTADOR " + contador++);
-					addConferences(se);
-				}
-			}
-		}
-
-		System.out.println("");
-		System.out.println("***********************");
-		System.out.println("FINAL RESULT 2:");
-		conferenceRooms.forEach(c -> c.printConferenceRoom());
-
-		System.out.println(" ");
-		System.out.println("Free Conferences ");
-
-		for (Conference c : freeConferencesQueue) {
-			c.printConference();
-		}
-
-		/**
-		 * *********************************************************
-		 * *********************************************************
-		 */
-
-		conferenceRooms = new ArrayList<>();
-		for (int i = 0; i < conferenceRoomNeeded; i++) {
-			ConferenceRoom conferenceRoom = new ConferenceRoom();
-			conferenceRoom.setName(Constant.CONFERENCE_ROOM + " " + (i + 1));
-
-			session = new Session(conferenceRoom.getName() + " " + Constant.MORNING_SESSION,
-					Constant.START_TIME_MORNING_SESSION, Constant.END_TIME_MORNING_SESSION,
-					Constant.END_TIME_MORNING_SESSION);
-			conferenceRoom.getSessions().add(session);
-			session = new Session(conferenceRoom.getName() + " " + Constant.EVENING_SESSION,
-					Constant.START_TIME_EVENING_SESSION, Constant.MIN_END_TIME_EVENING_SESSION,
-					Constant.MAX_END_TIME_EVENING_SESSION);
-			conferenceRoom.getSessions().add(session);
-
-			conferenceRooms.add(conferenceRoom);
-		}
-
-		// TODO borrar
-		dummyConference3();
-		// freeConferences = new ArrayList<>(inputConferences);
-		freeConferencesQueue = new LinkedList<>(inputConferences);
-
-		contador = 1;
-		for (ConferenceRoom room : conferenceRooms) {
-			for (Session se : room.getSessions()) {
-				while (!se.isFull() && !freeConferencesQueue.isEmpty()) {
-					// System.out.println("CONTADOR " + contador++);
-					addConferences(se);
-				}
-			}
-		}
-
-		System.out.println("");
-		System.out.println("***********************");
-		System.out.println("FINAL RESULT 3:");
-		conferenceRooms.forEach(c -> c.printConferenceRoom());
-
-		System.out.println(" ");
-		System.out.println("Free Conferences ");
-
-		for (Conference c : freeConferencesQueue) {
-			c.printConference();
-		}
 
 	}
 
