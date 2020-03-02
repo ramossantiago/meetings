@@ -3,6 +3,9 @@ package net.technisys.guayagamer.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.technisys.guayagamer.abstracts.Session;
+import net.technisys.guayagamer.constant.Constant;
+
 public class ConferenceRoom {
 
 	private String name;
@@ -36,7 +39,25 @@ public class ConferenceRoom {
 
 	public void printConferenceRoom() {
 		System.out.println(name.toUpperCase());
-		sessions.forEach(s -> s.printSession());
+
+		Conference lastRoomConference = new Conference();
+
+		for (Session session : sessions) {
+			for (Conference conference : session.getConferences()) {
+				lastRoomConference = conference;
+			}
+
+			if (session instanceof ReviewSession) {
+
+				if (lastRoomConference.getEndTime().isAfter(Constant.MIN_END_TIME_EVENING_SESSION)) {
+					session.setStartSession(lastRoomConference.getEndTime());
+				} else {
+					session.setStartSession(Constant.MIN_END_TIME_EVENING_SESSION);
+				}
+			}
+
+			session.printSession();
+		}
 		System.out.println("");
 
 	}

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Objects;
 
+import net.technisys.guayagamer.constant.Constant;
 import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
 import net.technisys.guayagamer.interfaces.IConference;
 
@@ -21,11 +22,11 @@ public class Conference implements IConference {
 		super();
 
 		if (Objects.isNull(name) || "".equals(name.trim())) {
-			throw new InvalidArgumentsException("Conference name is required");
+			throw new InvalidArgumentsException(Constant.NAME_REQUIRED);
 		}
 
 		if (Objects.isNull(duration) || duration.isZero()) {
-			throw new InvalidArgumentsException("Conference duration can´t be zero");
+			throw new InvalidArgumentsException(Constant.DURATION_NOT_ZERO);
 		}
 
 		this.name = name;

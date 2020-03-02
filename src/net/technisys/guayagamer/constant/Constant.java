@@ -37,10 +37,11 @@ public class Constant {
 	public static final int MIN_HOUR_PER_ROOM = 6;
 	public static final int MAX_HOUR_PER_ROOM = 7;
 
-	// public static final int MIN_HOURS_SESSION1 = 3;
-	// public static final int MAX_HOURS_SESSION1 = 3;
+	public static final String NAME_REQUIRED = "Nombre es requerido";
+	public static final String DURATION_NOT_ZERO = "La duracion no puede ser cero";
+	public static final String START_END_REQUIRED = "El tiempo de inicio y fin son requeridos";
+	public static final String START_END_INVALID = "El tiempo de inicio y fin son incorrectos";
 
-	// public static final int MIN_HOURS_SESSION2 = 3;
-	// public static final int MAX_HOURS_SESSION2 = 4;
+	public static final String NOT_ENOUGH_TIME = "El tiempo de disponible es menor al requerido";
 
 }
