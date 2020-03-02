@@ -104,7 +104,7 @@ public class Session implements ISession {
 	}
 
 	@Override
-	public void addConference(Conference conference) throws Exception {
+	public void addConference(Conference conference) throws SessionException {
 
 		if (isFull() || remainingMinutes.toMinutes() < conference.getDurationInMinutes()) {
 			throw new SessionException("The conference is more big than remaing session time");

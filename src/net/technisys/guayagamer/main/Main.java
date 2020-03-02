@@ -1,6 +1,7 @@
 package net.technisys.guayagamer.main;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 
 import net.technisys.guayagamer.constant.Constant;
 import net.technisys.guayagamer.exceptions.InvalidArgumentsException;
+import net.technisys.guayagamer.exceptions.SessionException;
 import net.technisys.guayagamer.model.Conference;
 import net.technisys.guayagamer.model.ConferenceRoom;
 import net.technisys.guayagamer.model.Session;
@@ -22,27 +24,44 @@ public class Main {
 	private static List<Conference> inputConferences = new ArrayList<>();
 	private static LinkedList<Conference> freeConferencesQueue = new LinkedList<>();
 	private static List<ConferenceRoom> conferenceRooms;
+	private static Duration totalConferenceDuration;
 
 	static int contador = 0;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 
-		if (args.length == 0) {
-			System.out.println("No se ha detallado el archivo de entrada de conferencias");
-			System.out.println("Se debe ejecutar ejecutable.jar <filename>");
-		}
-		String filename = args[0];
-
-		int lineNumber = 1;
-		Long duration = 0l;
-		String line;
-		File file;
-		Scanner sc = null;
-		Duration totalConferenceDuration = Duration.ofMinutes(0);
+		String filename = "";
 
 		try {
-			file = new File(filename);
-			sc = new Scanner(file);
+
+			if (args.length == 0) {
+				System.out.println("No se ha detallado el archivo de entrada de conferencias");
+				System.out.println("Se debe ejecutar ejecutable.jar <filename>");
+			}
+			filename = args[0];
+
+			readInputConferences(filename);
+			createConferenceRooms();
+			scheduleConferences();
+			printConferenceSchedule();
+		} catch (InvalidArgumentsException | SessionException e) {
+			System.out.println(e.getMessage());
+		} catch (FileNotFoundException e) {
+			System.out.println("No se puede encontrar el archivo de entrada " + filename);
+		} catch (Exception e) {
+			System.out.println("Existe un error en la ejecucion del programa con detalle: " + e.getMessage());
+		}
+	}
+
+	private static void readInputConferences(String filename) throws InvalidArgumentsException, FileNotFoundException {
+
+		Long duration;
+		String line;
+		File file;
+		totalConferenceDuration = Duration.ofMinutes(0);
+
+		file = new File(filename);
+		try (Scanner sc = new Scanner(file)) {
 			Pattern regex = Pattern.compile(Constant.CONFERENCE_REGEX, Pattern.CASE_INSENSITIVE);
 
 			while (sc.hasNextLine()) {
@@ -59,7 +78,6 @@ public class Main {
 						duration = Long.valueOf(match.group(3));
 					}
 					totalConferenceDuration = totalConferenceDuration.plusMinutes(duration);
-
 					inputConferences.add(new Conference(nombreConferencia, Duration.ofMinutes(duration)));
 
 				} else {
@@ -67,15 +85,11 @@ public class Main {
 							+ "\", como una entrada de conferencia valida, Favor revise el archivo y ejecute nuevamente");
 				}
 			}
-		} catch (InvalidArgumentsException e) {
-			System.out.println(e.getMessage());
-		} catch (NumberFormatException e) {
-			System.out.println("El numero de duracion enviado no es un numero valido, linea " + lineNumber);
-		} finally {
-			if (!Objects.isNull(sc)) {
-				sc.close();
-			}
 		}
+
+	}
+
+	private static void createConferenceRooms() throws InvalidArgumentsException {
 
 		conferenceRooms = new ArrayList<>();
 		int conferenceRoomNeeded = 0;
@@ -103,6 +117,10 @@ public class Main {
 			conferenceRooms.add(conferenceRoom);
 		}
 
+	}
+
+	private static void scheduleConferences() throws SessionException {
+
 		freeConferencesQueue = new LinkedList<>(inputConferences);
 		for (ConferenceRoom room : conferenceRooms) {
 			for (Session se : room.getSessions()) {
@@ -111,12 +129,13 @@ public class Main {
 				}
 			}
 		}
-
-		conferenceRooms.forEach(c -> c.printConferenceRoom());
-
 	}
 
-	private static void addConferences(Session session) throws Exception {
+	private static void printConferenceSchedule() {
+		conferenceRooms.forEach(c -> c.printConferenceRoom());
+	}
+
+	private static void addConferences(Session session) throws SessionException {
 
 		if (!freeConferencesQueue.isEmpty()) {
 			Conference nextConference = freeConferencesQueue.getFirst();
@@ -132,7 +151,7 @@ public class Main {
 		}
 	}
 
-	private static void tryOtherConferences(Session session) throws Exception {
+	private static void tryOtherConferences(Session session) throws SessionException {
 		List<Conference> fixingConferences = new ArrayList<>();
 
 		for (Conference freeConf : freeConferencesQueue) {
@@ -187,7 +206,7 @@ public class Main {
 
 	}
 
-	private static void rescheduleOtherSession(Session session, Conference nextConference) throws Exception {
+	private static void rescheduleOtherSession(Session session, Conference nextConference) throws SessionException {
 
 		long neededTimeForFix = nextConference.getDurationInMinutes();
 		long sessionTotalTime = 0;

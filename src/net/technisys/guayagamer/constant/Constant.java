@@ -40,7 +40,7 @@ public class Constant {
 	// public static final int MIN_HOURS_SESSION1 = 3;
 	// public static final int MAX_HOURS_SESSION1 = 3;
 
-	public static final int MIN_HOURS_SESSION2 = 3;
-	public static final int MAX_HOURS_SESSION2 = 4;
+	// public static final int MIN_HOURS_SESSION2 = 3;
+	// public static final int MAX_HOURS_SESSION2 = 4;
 
 }
